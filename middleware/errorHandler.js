@@ -47,7 +47,7 @@ const errorHandler = (err, req, res, next) => {
             });
             break;
         default:
-            console.log("Not a Status Error: ", err.message);
+            console.log("No Error, All good.", err.message);
             break;
     }
     

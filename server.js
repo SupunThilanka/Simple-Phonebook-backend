@@ -14,6 +14,7 @@ app.use(express.json());    // we have use json format in our app. so we have to
 //     res.status(200).json({message:"Get all contacts"});
 // });
 app.use("/api/contacts", require("./routes/contactRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 app.use(errorHandler);  //  we have to use this.
 
 
