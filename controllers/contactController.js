@@ -3,15 +3,15 @@ const Contact = require('../models/contactModels');
 
 // @desc GET all contacts
 // @route GET /api/contacts
-// @access Public 
+// @access Private  
 const getContacts = asyncHandler(async(req, res) => {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find({user_id: req.user.id});
     res.status(200).json(contacts);
 });
 
 // @desc Create new contacts
 // @route POST /api/contacts
-// @access Public 
+// @access Private  
 const createContact = asyncHandler(async(req, res) => {  // what is async? It's a promise with MONGODB,MYSQL to work with them
     console.log("The request body is ",req.body);
     const {name,email,phone} = req.body;
@@ -23,7 +23,8 @@ const createContact = asyncHandler(async(req, res) => {  // what is async? It's 
     const contact = await Contact.create({
         name,
         email,
-        phone
+        phone,
+        user_id: req.user.id // first we are going through the jwt middleware and then we are getting the user id from req.user
     });
 
     res.status(201).json(contact);
@@ -31,7 +32,7 @@ const createContact = asyncHandler(async(req, res) => {  // what is async? It's 
 
 // @desc Get required contacts
 // @route get /api/contacts
-// @access Public 
+// @access Private 
 const getContact = asyncHandler(async(req, res) => {
     const contact = await Contact.findById(req.params.id);
     if(!contact){
@@ -41,15 +42,23 @@ const getContact = asyncHandler(async(req, res) => {
     res.status(200).json(contact);
 });
 
+
+
 // @desc Update required contacts
 // @route Put /api/contacts
-// @access Public 
+// @access Private 
 const updateContact = asyncHandler(async(req, res) => {
     const contact = await Contact.findById(req.params.id);
     if(!contact){
         res.status(404);
         throw new Error("Contact not found");
     }
+
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(403);
+        throw new Error("You are not authorized to update this contact");
+    }
+
     const updatedContact = await Contact.findByIdAndUpdate(
         req.params.id,
         req.body,
@@ -61,14 +70,23 @@ const updateContact = asyncHandler(async(req, res) => {
 
 // @desc Delete required contacts
 // @route Delete /api/contacts
-// @access Public 
+// @access Private  
 const deleteContact = asyncHandler(async(req, res) => {
     const contact = await Contact.findById(req.params.id);
     if(!contact){
         res.status(404);
         throw new Error("Contact not found");
     }
-    await Contact.deleteOne();
+    if(!contact){
+        res.status(404);
+        throw new Error("Contact not found");
+    }
+
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(403);
+        throw new Error("You are not authorized to delete this contact");
+    }
+    await Contact.deleteOne(_id:req.params.id);
     res.status(200).json({message:"Contact deleted"});
 });
 

@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler'); // asyncHandler is automatically pass the error to the errorHandler middleware. throw and catch errors
 const User = require('../models/userModels');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 
 // @desc Register a user
@@ -47,13 +48,39 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route POST /api/users/login
 // @access Public 
 const loginUser = asyncHandler(async (req, res) => {
-    res.json({message:"Login the user"});
+    const {email,password} = req.body;
+    if(!email || !password){
+        res.status(400);
+        throw new Error("Please fill all the fields");
+    }
+    const user = await User.findOne({email:email});
+
+    //compare password with hashedpassword
+    if(user && (await bcrypt.compare(password, user.password))){
+        const accessToken = jwt.sign({
+            user: {
+                username: user.username,
+                email: user.email,
+                id: user._id,
+            },
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {expiresIn: "15m"}
+    );
+        res.status(200).json({accessToken});
+    }
+    else{
+        res.status(400);
+        throw new Error("Invalid email or password");
+    }
+    
+    // res.json({message:"Login the user"});
 });
 // @desc get a user
 // @route GET /api/users/current
-// @access Public 
+// @access Private 
 const currentUser = asyncHandler(async (req, res) => {
-    res.json({message:"Current user information"});
+    res.json(req.user);
 });
 
 module.exports = {registerUser,loginUser,currentUser};
