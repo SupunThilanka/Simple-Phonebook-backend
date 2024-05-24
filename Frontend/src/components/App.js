@@ -1,26 +1,18 @@
-import React from 'react';
+import React,{useState} from 'react';
 import AddContact from './AddContact';
 import './App.css';
 import Header from './Header';
 import ContactList from './ContactList';
 
 function App() {
-  const contacts = [
-    {
-      id: "1",
-      name: "Dhaval",
-      email: "Dhaval@gmail.com",
-    },
-    {
-      id: "",
-      name: "Supun",
-      email: "Supun@gmail.com",
-    }
-  ]
+  const [contacts, setContacts] = useState([]);  // useState is a hook that allows you to have state variables in functional components
+  const addContactHandler = (contact) => {
+    
+  }
   return (
     <div className="ui container">
       <Header />
-      <AddContact/>
+      <AddContact addContactHandler = {addContactHandler}/>
       <ContactList contacts = {contacts}/>
     </div>
   );
