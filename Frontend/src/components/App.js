@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import AddContact from './AddContact';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid'; //npm i uuid
+import AddContactWrapper from './AddContact';
 import './App.css';
 import ContactList from './ContactList';
 import Header from './Header';
+import ContactDetail from './ContactDetail';
 
 function App() {
   const LOCAL_STORAGE_KEY = "contacts";
@@ -41,11 +43,18 @@ function App() {
 
   return (
     <div className="ui container">
-      <Header />
-      <AddContact addContactHandler={addContactHandler} />
-      <ContactList contacts={contacts} getContactId={removeContactHandler} /> {/*pass the contacts array and getContactId function as props to ContactList child component*/}
+      <Router>
+        <Header/>
+        <Routes>  {/* Routes == Switch */}
+        <Route path="/" element={<ContactList contacts={contacts} getContactId={removeContactHandler}/>} />
+        <Route path="/add" element={<AddContactWrapper addContactHandler={addContactHandler} />} />
+        <Route path="/contact/:id" element={<ContactDetail />} />
+        </Routes>   
+        {/* <AddContact addContactHandler={addContactHandler} />
+        <ContactList contacts={contacts} getContactId={removeContactHandler} /> pass the contacts array and getContactId function as props to ContactList child component */}
+      </Router>
+
     </div>
   );
 }
-
 export default App;
